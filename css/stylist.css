@@ -1,0 +1,20 @@
+svg {
+  width: 60px;
+  height: 60px;
+  fill: currentColor;
+  vertical-align: text-bottom;
+}
+
+.yo-hover {
+  transition: all 0.5s;
+  border-radius: 10px;
+}
+
+.yo-hover:hover {
+  background-color: #d0ceced2;
+}
+
+.polygon {
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  background-color: #0bceaf;
+}
