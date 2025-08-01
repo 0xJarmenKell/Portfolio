@@ -113,5 +113,133 @@
         items: 1
     });
     
+    // Contact Form with enhanced security
+    $('#contactForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data with sanitization
+        var name = sanitizeInput($('#name').val().trim());
+        var email = sanitizeInput($('#email').val().trim());
+        var subject = sanitizeInput($('#subject').val().trim());
+        var message = sanitizeInput($('#message').val().trim());
+        
+        // Enhanced validation
+        if (!validateInput(name, 'name') || !validateInput(email, 'email') || 
+            !validateInput(subject, 'subject') || !validateInput(message, 'message')) {
+            return;
+        }
+        
+        // Show loading state
+        var submitBtn = $('#contactForm button[type="submit"]');
+        var originalText = submitBtn.text();
+        submitBtn.prop('disabled', true).text('Sending...');
+        
+        // Create mailto link with sanitized data
+        var mailtoLink = 'mailto:youssefyousry994@gmail.com' +
+            '?subject=' + encodeURIComponent('[Portfolio Contact] ' + subject) +
+            '&body=' + encodeURIComponent(
+                'Name: ' + name + '\n' +
+                'Email: ' + email + '\n\n' +
+                'Message:\n' + message + '\n\n' +
+                '---\n' +
+                'This message was sent from your portfolio website.'
+            );
+        
+        // Try to open email client
+        try {
+            window.open(mailtoLink, '_blank');
+            showFormMessage('Thank you for your message! Your email client should open in a new tab. If it doesn\'t open automatically, please copy the email address: youssefyousry994@gmail.com', 'success');
+            $('#contactForm')[0].reset();
+        } catch (error) {
+            showFormMessage('There was an issue opening your email client. Please send an email directly to: youssefyousry994@gmail.com', 'error');
+        }
+        
+        // Reset button
+        setTimeout(function() {
+            submitBtn.prop('disabled', false).text(originalText);
+        }, 2000);
+    });
+    
+    // Input sanitization function
+    function sanitizeInput(input) {
+        if (typeof input !== 'string') return '';
+        
+        // Remove HTML tags and encode special characters
+        return input
+            .replace(/<[^>]*>/g, '') // Remove HTML tags
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;')
+            .replace(/\//g, '&#x2F;')
+            .trim();
+    }
+    
+    // Enhanced input validation function
+    function validateInput(value, type) {
+        if (!value || value.length === 0) {
+            showFormMessage('Please fill in the ' + type + ' field.', 'error');
+            return false;
+        }
+        
+        switch (type) {
+            case 'name':
+                if (value.length < 2 || value.length > 50) {
+                    showFormMessage('Name must be between 2 and 50 characters.', 'error');
+                    return false;
+                }
+                if (!/^[a-zA-Z\s\-']+$/.test(value)) {
+                    showFormMessage('Name can only contain letters, spaces, hyphens, and apostrophes.', 'error');
+                    return false;
+                }
+                break;
+                
+            case 'email':
+                var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(value) || value.length > 254) {
+                    showFormMessage('Please enter a valid email address.', 'error');
+                    return false;
+                }
+                break;
+                
+            case 'subject':
+                if (value.length < 3 || value.length > 100) {
+                    showFormMessage('Subject must be between 3 and 100 characters.', 'error');
+                    return false;
+                }
+                break;
+                
+            case 'message':
+                if (value.length < 10 || value.length > 1000) {
+                    showFormMessage('Message must be between 10 and 1000 characters.', 'error');
+                    return false;
+                }
+                break;
+        }
+        
+        return true;
+    }
+    
+    // Function to show form messages
+    function showFormMessage(message, type) {
+        // Remove existing message
+        $('.form-message').remove();
+        
+        // Create message element
+        var messageClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        var messageHtml = '<div class="form-message alert ' + messageClass + ' mt-3" role="alert">' + message + '</div>';
+        
+        // Add message after form
+        $('#contactForm').after(messageHtml);
+        
+        // Auto remove after 8 seconds
+        setTimeout(function() {
+            $('.form-message').fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 8000);
+    }
+    
 })(jQuery);
 
