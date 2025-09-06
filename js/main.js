@@ -118,7 +118,7 @@
     items: 1,
   });
 
-  // Contact Form with enhanced security
+  // Contact Form with EmailJS integration
   $('#contactForm').on('submit', function (e) {
     e.preventDefault();
 
@@ -143,45 +143,39 @@
     var originalText = submitBtn.text();
     submitBtn.prop('disabled', true).text('Sending...');
 
-    // Create mailto link with sanitized data
-    var mailtoLink =
-      'mailto:youssefyousry994@gmail.com' +
-      '?subject=' +
-      encodeURIComponent('[Portfolio Contact] ' + subject) +
-      '&body=' +
-      encodeURIComponent(
-        'Name: ' +
-          name +
-          '\n' +
-          'Email: ' +
-          email +
-          '\n\n' +
-          'Message:\n' +
-          message +
-          '\n\n' +
-          '---\n' +
-          'This message was sent from your portfolio website.',
-      );
+    // Prepare EmailJS parameters
+    var templateParams = {
+      from_name: name,
+      from_email: email,
+      subject: subject,
+      message: message,
+      to_email: 'youssefyousry994@gmail.com',
+    };
 
-    // Try to open email client
-    try {
-      window.open(mailtoLink, '_blank');
-      showFormMessage(
-        "Thank you for your message! Your email client should open in a new tab. If it doesn't open automatically, please copy the email address: youssefyousry994@gmail.com",
-        'success',
-      );
-      $('#contactForm')[0].reset();
-    } catch (error) {
-      showFormMessage(
-        'There was an issue opening your email client. Please send an email directly to: youssefyousry994@gmail.com',
-        'error',
-      );
-    }
-
-    // Reset button
-    setTimeout(function () {
-      submitBtn.prop('disabled', false).text(originalText);
-    }, 2000);
+    // Send email using EmailJS
+    emailjs
+      .send(serviceID, templateID, templateParams)
+      .then(function (response) {
+        console.log('Email sent successfully:', response);
+        showFormMessage(
+          'Thank you for your message! I will get back to you soon.',
+          'success',
+        );
+        $('#contactForm')[0].reset();
+      })
+      .catch(function (error) {
+        console.error('Error sending email:', error);
+        showFormMessage(
+          'There was an issue sending your message. Please try again later or contact me directly at: youssefyousry994@gmail.com',
+          'error',
+        );
+      })
+      .finally(function () {
+        // Reset button
+        setTimeout(function () {
+          submitBtn.prop('disabled', false).text(originalText);
+        }, 2000);
+      });
   });
 
   // Input sanitization function
@@ -260,7 +254,20 @@
     $('.form-message').remove();
 
     // Create message element
-    var messageClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    var messageClass;
+    switch (type) {
+      case 'success':
+        messageClass = 'alert-success';
+        break;
+      case 'warning':
+        messageClass = 'alert-warning';
+        break;
+      case 'error':
+      default:
+        messageClass = 'alert-danger';
+        break;
+    }
+
     var messageHtml =
       '<div class="form-message alert ' +
       messageClass +
@@ -277,24 +284,5 @@
         $(this).remove();
       });
     }, 8000);
-  }
-
-  function sendMail() {
-    var params = {
-      name: document.getElementById('name').value,
-      email: document.getElementById('email').value,
-      subject: document.getElementById('subject').value,
-      message: document.getElementById('message').value,
-    };
-
-    emailjs.send(serviceID, templateID, params).then(
-      function (response) {
-        console.log('Email sent successfully:', response);
-        alert('Your message has been sent successfully!');
-      },
-      function (error) {
-        console.error('Error sending email:', error);
-      },
-    );
   }
 })(jQuery);

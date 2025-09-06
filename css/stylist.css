@@ -18,3 +18,19 @@ svg {
   clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
   background-color: #0bceaf;
 }
+
+/* Contact Form Alert Styles */
+.alert-warning {
+  background-color: #fff3cd;
+  border-color: #ffecb5;
+  color: #856404;
+}
+
+.form-message {
+  border-radius: 5px;
+  border: 1px solid;
+  padding: 12px 15px;
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 1.4;
+}
